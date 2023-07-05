@@ -1,0 +1,29 @@
+import time
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+# Define the event handler class
+class NewFileHandler(FileSystemEventHandler):
+    def on_created(self, event):
+        # This method will be called when a new file is created
+        if not event.is_directory:
+            print(f"New file created: {event.src_path}")
+
+# Define the function to start monitoring the folder
+def monitor_folder(path):
+    event_handler = NewFileHandler()
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=False)
+    observer.start()
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+
+    observer.join()
+
+# Example usage
+#folder_path = '/shared'  # Replace with the actual folder path you want to monitor
+#monitor_folder(folder_path)
