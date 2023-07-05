@@ -5,25 +5,3 @@ When successfull save the text file in a folder "/text" with a same name as the 
 When a error occours log the error and continue and sens a SNS message to "deon", 
 try to reporcess the file twice before giving up on the file. do not overwrite the text file if duclication occours 
 add incremental version to the file name starting with _
-
-
-
-
-Areas that need clarification:
-1. How should the Python application continuously monitor the "/shared" folder? Should it use a polling mechanism or
- a file system event-based mechanism?
-2. Should the application only monitor the root level of the "/shared" folder and ignore any subfolders?
-
-3. What should the application do if it encounters a file with an audio format other than mp3 or wav?
-4. How should the application send the audio file to ChatGPT for transcription? Are there any specific APIs or 
-libraries to be used?
-5. Should the application handle any specific errors that may occur during the transcription process? 
-If so, what are the expected error scenarios?
-6. How should the application log errors? Should it write them to a file or use a logging library?
-7. What should the SNS message to "deon" contain? Should it include any specific information about the 
-error or the file being processed?
-8. How should the application retry processing a file if an error occurs? Should there be a specific delay between retries?
-9. How should the application handle duplicate text files? Should it append a version number to the file name or 
-use a different approach?
-10. Should the application save the text files in the "/text" folder with the same directory structure as the 
-source files, or should they all be saved directly in the root of the "/text" folder?
