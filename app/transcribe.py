@@ -1,6 +1,5 @@
 
-#import requests
-usr/local/bin/pipimport pip._vendor.requests
+import requests
 import json
 
 def transcribe(audioFile):
