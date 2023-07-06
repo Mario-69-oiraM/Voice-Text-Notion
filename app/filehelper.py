@@ -29,6 +29,7 @@ def readfilelist(dataPath):
     return(reader)
 
 def findFilesToProcess(audioPath, dataPath):
+    
     listOfFilesonDisk = fileInDirectory(audioPath)
     listOfFilesInFile = readfilelist(dataPath)
         
@@ -39,8 +40,6 @@ def findFilesToProcess(audioPath, dataPath):
         
     savefilelist(dataPath, listOfFilesInFile)
     
-    for lin in listOfFilesInFile:
-        if lin.split()
-
+    
     return(listOfFilesInFile)
  

@@ -1,6 +1,7 @@
 import os 
 import filehelper as fh
 import logging
+import transcribe as t
 #import logging.config
 #logging.config.fileConfig('/shared/data/')
 logging.basicConfig(level=logging.DEBUG)
@@ -34,7 +35,9 @@ def main():
         
         logging.info("Start")
 
-        print(fh.findFilesToProcess(audioPath, dataPath))
+        for audioFile in (fh.findFilesToProcess(audioPath, dataPath)):
+            f = audioFile.split(",")
+            t.transcribe(f[0])
         
         logging.info("End")
 
