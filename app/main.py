@@ -37,7 +37,8 @@ def main():
 
         for audioFile in (fh.findFilesToProcess(audioPath, dataPath)):
             f = audioFile.split(",")
-            t.transcribe_audio_file(audioPath + f[0])
+            #print(t.generate_response(audioPath + f[0]))
+            print(t.transcribe_audio_file(audioPath + f[0]))
         
         logging.info("End")
 
