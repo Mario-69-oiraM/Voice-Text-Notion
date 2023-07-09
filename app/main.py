@@ -1,13 +1,23 @@
 import os 
 import filehelper as fh
-import logging
 import transcribe as t
-#import logging.config
-#logging.config.fileConfig('/shared/data/')
-logging.basicConfig(level=logging.DEBUG)
-logging.basicConfig(filename='/shared/data/app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+import logging
+import sys
 
+global logger
+logger = logging.getLogger(__name__)
+logger=logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
+file_handler = logging.FileHandler('logfile.log')
+formatter    = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(module)s : %(message)s')
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
+
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+logger.info('started main')
+
+ 
 def setup():
     
     global audioPath
@@ -17,34 +27,24 @@ def setup():
     audioPath = "/shared/audio/"
     textPath = "/shared/text/"
     dataPath = "/shared/data/"
-    #logger = logger.setup_logger(dataPath)
-    
-
-    #logging.basicConfig(level=logging.DEBUG)
-    #logging.basicConfig(filename=dataPath + 'app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
-
-    #logging.debug('This is a debug message')
-    #logging.info('This is an info message')
-    #logging.warning('This is a warning message')
-    #logging.error('This is an error message')
-    #logging.critical('This is a critical message')
+    processedAudioPath = "/shared/audio/processed/"
     
 def main():
     try:
         setup()
-        
-        logging.info("Start")
-
-        for audioFile in (fh.findFilesToProcess(audioPath, dataPath)):
+        for audioFile in (fh.fileInDirectory(audioPath)):
             f = audioFile.split(",")
-            #print(t.generate_response(audioPath + f[0]))
-            print(t.transcribe_audio_file(audioPath + f[0]))
-        
+            try: 
+                print(t.transcribe_audio_file(audioPath + f[0]))
+                logger.info("Successful transcribe " + audioPath + f[0])
+
+            except ex as e:
+                logger.error("transcribe error " + str(e))
+            
         logging.info("End")
 
-            
     except Exception as e:
-        print("Main error " + str(e))
+            logger.info("Main error " + str(e))
     
 if __name__ == "__main__":
     main()

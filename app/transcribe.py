@@ -1,104 +1,76 @@
-import openai
-#import speech_recognition as sr
+import speech_recognition as sr
 import os
-from pocketsphinx import AudioFile, get_model_path
+from pydub import AudioSegment
 
-#from pydub import AudioSegment
+import logging
+logger = logging.getLogger(__name__)
 
-# Set up your OpenAI API credentials
-#openai.api_key = str(os.getenv('GPTKey'))
+# Function to convert to WAV
+def convert_to_wav(file, file_type):
+    try: 
+        logger.debug('convert_to_wav ' + file + ' , ' + file_type)
+        wav_file = os.path.splitext(file)[0] + '.wav'
+        
+        # Load the MP3 file
+        if file_type == 'mp3':
+            audio = AudioSegment.from_mp3(file)
+        elif file_type == 'm4a':
+            audio = AudioSegment.from_file(file, format="m4a")
+        
+        # Export as WAV
+        audio.export(wav_file, format='wav')
+    except Exception as e: 
+        logger.error('convert_to_wav ' + e)
+
+    return(wav_file)
+
+# # Function to convert MP3 to WAV
+# def convert_to_wav(mp3_file):
+#     wav_file = os.path.splitext(mp3_file)[0] + '.wav'
+#     wav = wav_file.split("/")
+#     # Load the MP3 file
+#     audio = AudioSegment.from_mp3(mp3_file)
+#     # Export as WAV
+#     audio.export(wav_file, format='wav')
+#     return(wav_file)
 
 
-model_path = get_model_path()
+# # Function to convert M4A to WAV
+# def convert_m4a_to_wav(m4a_file):
+#     wav_file = os.path.splitext(m4a_file)[0] + '.wav'
+#     # Load the M4A file
+#     audio = AudioSegment.from_file(m4a_file, format="m4a")
+#     # Export as WAV
+#     audio.export(wav_file, format="wav")
+#     return(wav_file)
 
+# Function to transcribe audio file
 def transcribe_audio_file(audio_file):
     
     if audio_file[-3:].upper() == 'MP3':
-        audio_file = convert_to_wav(audio_file)
-
-    config = {
-        'verbose': False,
-        'audio_file': '" + audio_file + " ',
-        'hmm': get_model_path('en-us'),
-        'lm': get_model_path('en-us.lm.bin'),
-        'dict': get_model_path('cmudict-en-us.dict')
-    }
-
-    audio = AudioFile(**config)
-    for phrase in audio:
-        print(phrase)
+        audio_file = convert_to_wav(audio_file, 'mp3')
+    elif audio_file[-3:].upper() == 'M4A':
+        audio_file = convert_to_wav(audio_file,'m4a')
     
+    # Initialize the recognizer
+    r = sr.Recognizer()
 
-# Function to convert audio to WAV format
-def convert_to_wav(audio_file):
-    wav_file = os.path.splitext(audio_file)[0] + '.wav'
-    #os.system(f'ffmpeg -i {audio_file} {wav_file}')
-    # convert wav to mp3                                                            
-    sound = AudioSegment.from_mp3(audio_file)
-    sound.export(wav_file, format="wav")
-    
-    return wav_file
+    # Load the audio file
+    with sr.AudioFile(audio_file) as source:
+        # Read the entire audio file
+        audio = r.record(source)
 
-# Function to transcribe audio file using speech recognition
-# def transcribe_audio_file(audio_file):
+    try:
+        # Transcribe the audio
+        transcription = r.recognize_google(audio)
+        logger.info("Success " + audio_file)
+        retun(transcription)
 
-#     if audio_file[-3:].upper() == 'MP3':
-#         audio_file = convert_to_wav(audio_file)
+    except sr.UnknownValueError:
+        logger.error(" sr.unknownvalueerror: Speech recognition could not understand the audio."  )
+    except sr.RequestError as e:
+        logger.error("Could not request results from speech recognition service; {0}".format(e))
 
-#     # Initialize the recognizer
-#     r = sr.Recognizer()
 
-#     # Load the audio file
-#     with sr.AudioFile(audio_file) as source:
-#         # Read the entire audio file
-#         audio = r.record(source)
 
-#     try:
-#         # Transcribe the audio using the whispering language model
-#         transcription = r.recognize_sphinx(audio, language='whisper')
 
-#         # Return the transcription
-#         return transcription
-
-#     except sr.UnknownValueError:
-#         print("Whispering not recognized.")
-#         return None
-
-# Function to generate a response from ChatGPT
-# def generate_response(prompt):
-#     response = openai.Completion.create(
-#         engine='text-davinci-003',
-#         prompt=prompt,
-#         max_tokens=2000,
-#         temperature=0,
-#         n=1,
-#         stop=None,
-#         timeout=15,
-#     )
-
-#     if 'choices' in response and len(response.choices) > 0:
-#         return response.choices[0].text.strip()
-#     else:
-#         return None
-
-# # Provide the path to your audio file
-# audio_file_path = "path/to/your/audio_file.mp3"
-
-# # Convert the audio file to WAV format
-# wav_file_path = convert_to_wav(audio_file_path)
-
-# # Transcribe the audio file
-# transcription = transcribe_audio_file(wav_file_path)
-
-# if transcription:
-#     # Provide the transcription as the prompt for ChatGPT
-#     prompt = "You: " + transcription
-
-#     # Generate a response from ChatGPT based on the transcription
-#     response = generate_response(prompt)
-
-#     # Print the response
-#     print("ChatGPT:", response)
-
-# # Remove the temporary WAV file
-# os.remove(wav_file_path)
