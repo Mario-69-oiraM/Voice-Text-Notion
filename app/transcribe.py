@@ -1,16 +1,17 @@
 import speech_recognition as sr
 import os
 from pydub import AudioSegment
-
 import logging
-logger = logging.getLogger(__name__)
+logger = logging #.getLogger(__name__)
 
+########### Local transcribe 
 # Function to convert to WAV
 def convert_to_wav(file, file_type):
     try: 
         logger.debug('convert_to_wav ' + file + ' , ' + file_type)
+
         wav_file = os.path.splitext(file)[0] + '.wav'
-        
+        wav_file = os.environ.get("wavPath") + os.path.basename(wav_file)
         # Load the MP3 file
         if file_type == 'mp3':
             audio = AudioSegment.from_mp3(file)
@@ -19,33 +20,15 @@ def convert_to_wav(file, file_type):
         
         # Export as WAV
         audio.export(wav_file, format='wav')
+        logger.debug('Exported file ' + wav_file)
+
     except Exception as e: 
         logger.error('convert_to_wav ' + e)
 
     return(wav_file)
 
-# # Function to convert MP3 to WAV
-# def convert_to_wav(mp3_file):
-#     wav_file = os.path.splitext(mp3_file)[0] + '.wav'
-#     wav = wav_file.split("/")
-#     # Load the MP3 file
-#     audio = AudioSegment.from_mp3(mp3_file)
-#     # Export as WAV
-#     audio.export(wav_file, format='wav')
-#     return(wav_file)
-
-
-# # Function to convert M4A to WAV
-# def convert_m4a_to_wav(m4a_file):
-#     wav_file = os.path.splitext(m4a_file)[0] + '.wav'
-#     # Load the M4A file
-#     audio = AudioSegment.from_file(m4a_file, format="m4a")
-#     # Export as WAV
-#     audio.export(wav_file, format="wav")
-#     return(wav_file)
-
 # Function to transcribe audio file
-def transcribe_audio_file(audio_file):
+def transcribe_audio_file_local(audio_file):
     
     if audio_file[-3:].upper() == 'MP3':
         audio_file = convert_to_wav(audio_file, 'mp3')
@@ -64,13 +47,37 @@ def transcribe_audio_file(audio_file):
         # Transcribe the audio
         transcription = r.recognize_google(audio)
         logger.info("Success " + audio_file)
-        retun(transcription)
+        return(transcription)
 
     except sr.UnknownValueError:
         logger.error(" sr.unknownvalueerror: Speech recognition could not understand the audio."  )
+        raise
     except sr.RequestError as e:
         logger.error("Could not request results from speech recognition service; {0}".format(e))
+        raise
 
+### open transcribe
 
+import requests
+import json
+import base64
+import openai
 
+def transcribe_audio_file_openAI(audio_file):
+    try:
+        openai.api_key = os.environ.get("openai_api_key")
+        logger.debug("transcribe_audio_file_openAI" + audio_file)
+        with open(audio_file, "rb") as af:
+            transcript = openai.Audio.transcribe(
+                file = af,
+                model = "whisper-1",
+                response_format="text",
+                language="en"
+            )        
+        logger.debug("Success transcribe_audio_file_openAI" + audio_file)
+
+        return(transcript)
+
+    except Exception as e:
+        logger.error(" Error " + str(e))
 

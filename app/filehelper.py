@@ -1,11 +1,12 @@
-
+import os
 from os import listdir
 from os.path import isfile, join, exists 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging #.getLogger(__name__)
 
 #function to return files in a directory
-def fileInDirectory(my_dir: str):
+def fileInDirectory():
+    my_dir = os.environ.get("audioPath")
     logger.debug("File list " + my_dir)
     onlyfiles = [f for f in listdir(my_dir) if isfile(join(my_dir, f))]
     return(onlyfiles)

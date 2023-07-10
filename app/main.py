@@ -3,6 +3,8 @@ import filehelper as fh
 import transcribe as t
 import logging
 import sys
+import env.setupenv as envSetup 
+
 
 global logger
 logger = logging.getLogger(__name__)
@@ -10,13 +12,13 @@ logger=logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 file_handler = logging.FileHandler('logfile.log')
-formatter    = logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(module)s : %(message)s')
+formatter    = logging.Formatter('%(asctime)s : %(levelname)s : %(module)s : %(message)s')
+
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info('started main')
-
+logger.info('*************Started main')
  
 def setup():
     
@@ -24,22 +26,32 @@ def setup():
     global textPath
     global dataPath
 
-    audioPath = "/shared/audio/"
-    textPath = "/shared/text/"
-    dataPath = "/shared/data/"
-    processedAudioPath = "/shared/audio/processed/"
-    
+    envSetup.env_setup()
+
 def main():
     try:
         setup()
-        for audioFile in (fh.fileInDirectory(audioPath)):
-            f = audioFile.split(",")
+        
+        for f in (fh.fileInDirectory()):
+            #f = audioFile.split(",")
             try: 
-                print(t.transcribe_audio_file(audioPath + f[0]))
-                logger.info("Successful transcribe " + audioPath + f[0])
+                logger.info("Transcribing " + f)
+                ## local 
+                ##transcribed_text = t.transcribe_audio_file_local(os.environ.get("audioPath") + f)
+                
+                ## Chat GPT 
+                transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
+                text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
+                tf = open(text_file, "w")
+                logger.info("Saving text " + text_file)
+                tf.write(transcribed_text)
+                tf.close()
 
-            except ex as e:
+                logger.info("Successful transcribe " + f)
+                os.rename(os.environ.get("audioPath") + f, os.environ.get("processedAudioPath") + f)
+            except Exception as e:
                 logger.error("transcribe error " + str(e))
+                pass
             
         logging.info("End")
 
