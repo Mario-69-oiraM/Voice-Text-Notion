@@ -18,7 +18,7 @@ logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-logger.info('*************Started main')
+logger.info('************* Started main *************')
  
 def setup():
     
@@ -41,6 +41,7 @@ def main():
                 
                 ## Chat GPT 
                 transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
+
                 text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
                 tf = open(text_file, "w")
                 logger.info("Saving text " + text_file)
@@ -49,11 +50,12 @@ def main():
 
                 logger.info("Successful transcribe " + f)
                 os.rename(os.environ.get("audioPath") + f, os.environ.get("processedAudioPath") + f)
+
             except Exception as e:
                 logger.error("transcribe error " + str(e))
                 pass
             
-        logging.info("End")
+        logging.info("************* End *************")
 
     except Exception as e:
             logger.info("Main error " + str(e))
