@@ -4,6 +4,7 @@ import transcribe as t
 import logging
 import sys
 import env.setupenv as envSetup 
+import notion
 
 
 global logger
@@ -31,7 +32,7 @@ def setup():
 def main():
     try:
         setup()
-        
+        notion.create_page("")
         for f in (fh.fileInDirectory()):
             #f = audioFile.split(",")
             try: 
