@@ -32,7 +32,7 @@ def setup():
 def main():
     try:
         setup()
-        notion.create_page("")
+        notion.create_page()
         for f in (fh.fileInDirectory()):
             #f = audioFile.split(",")
             try: 

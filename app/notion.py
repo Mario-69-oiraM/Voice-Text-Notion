@@ -1,67 +1,96 @@
 import requests
 import os
+import logging
+import json
 
-def create_page(data: dict):
+def create_page_X(data: dict):
     NOTION_TOKEN = os.environ.get("Notion_secret")
     DATABASE_ID = os.environ.get("NotionDB")
-
+    
     headers = {
         "Authorization": "Bearer " + NOTION_TOKEN,
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28",
-}
+        }
 
     create_url = "https://api.notion.com/v1/pages"
-
-    payload = {"parent": {"database_id": os.environ.get("NotionDB")}, "properties": pagePropertiesJson("","")}
-
+    payload = {"parent": {"database_id": os.environ.get("NotionDB")}, "properties": pagePropertiesJson(" "," ")}
+    
     res = requests.post(create_url, headers=headers, json=payload)
+    
     if res.status_code == 200:
-        print("xx")
-
-    print(res.status_code)
-    print(res.text)    
-
-    return res
-
+        data_dict = json.loads(res.text)
+        pageID = (str(data_dict["id"]))
+        logging.debug("Page created " + pageID)
+        #print(pageID)    
+    else:
+        logging.debug("Error " + res.text)
+    return pageID
 
 
 def pagePropertiesJson(note, body):
 
+    new_page = ' "Note": { "title": [  { "text": { "content": "Data" } } ]   '
+    
+    return new_page
+    
     # Now let's create a new page
-    new_page = {
+    new_page =  {
+        "properties": {
         "Note": {
             "title": [
                 {
                     "text": {
-                        "content": "Note"
+                        "content": "Tuscan kale"
                     }
-                }]
+                }
+            ]
         }
-        # ,
-        # "children": [
-        #     {
-        #         "object": "block",
-        #         "type": "heading_2",
-        #         "heading_2": {
-        #             "rich_text": [{ "type": "text", "text": { "content": "Lacinato kale" } }]
-        #         }
-        #     },
-		# {
-        # "object": "block",
-        # "type": "paragraph",
-        # "paragraph": {
-        #     "rich_text": [
-        #         {
-        #             "type": "text",
-        #             "text": {
-        #                 "content": "Lacinato kale is a variety of kale with a long tradition in Italian cuisine, especially that of Tuscany. It is also known as Tuscan kale, Italian kale, dinosaur kale, kale, flat back kale, palm tree kale, or black Tuscan palm.",
-        #                 "link": { "url": "https://en.wikipedia.org/wiki/Lacinato_kale" }
-        #             }
-        #         }
-        #     ]
-        # }
-		#}
-        #]
+        ,
     }
+    }
+  
     return new_page
+
+
+def create_page():
+    # Define the necessary details
+    token = os.environ.get("Notion_secret")
+    database_id = os.environ.get("NotionDB")
+
+    # Define the page properties
+    new_page_properties = {
+        "Parent": {"database_id": database_id},
+        "properties": {
+            "Note": {
+                "title": [
+                    {
+                        "text": {
+                            "content": "New Page Title"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+
+    # Prepare the request
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2021-05-13"
+    }
+
+    data = {
+        "parent": new_page_properties["Parent"],
+        "properties": new_page_properties["properties"]
+    }
+
+    # Send the request to create a new page
+    response = requests.post("https://api.notion.com/v1/pages", headers=headers, data=json.dumps(data))
+
+    if response.status_code == 200:
+        print("New page added successfully!")
+    else:
+        print(f"Failed to add new page. Status code: {response.status_code}")
+        print(response.text)
