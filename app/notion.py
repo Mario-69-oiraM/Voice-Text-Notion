@@ -3,94 +3,76 @@ import os
 import logging
 import json
 
-def create_page_X(data: dict):
-    NOTION_TOKEN = os.environ.get("Notion_secret")
-    DATABASE_ID = os.environ.get("NotionDB")
-    
-    headers = {
-        "Authorization": "Bearer " + NOTION_TOKEN,
-        "Content-Type": "application/json",
-        "Notion-Version": "2022-06-28",
-        }
+# def create_page():
+#     # Define the necessary details
+#     token = os.environ.get("Notion_secret")
+#     database_id = os.environ.get("NotionDB")
 
-    create_url = "https://api.notion.com/v1/pages"
-    payload = {"parent": {"database_id": os.environ.get("NotionDB")}, "properties": pagePropertiesJson(" "," ")}
-    
-    res = requests.post(create_url, headers=headers, json=payload)
-    
-    if res.status_code == 200:
-        data_dict = json.loads(res.text)
-        pageID = (str(data_dict["id"]))
-        logging.debug("Page created " + pageID)
-        #print(pageID)    
-    else:
-        logging.debug("Error " + res.text)
-    return pageID
+def add_page_to_database(new_page_title, text_body): 
+    #api_token, database_id, title, text_blocks):
 
-
-def pagePropertiesJson(note, body):
-
-    new_page = ' "Note": { "title": [  { "text": { "content": "Data" } } ]   '
-    
-    return new_page
-    
-    # Now let's create a new page
-    new_page =  {
-        "properties": {
-        "Note": {
-            "title": [
-                {
-                    "text": {
-                        "content": "Tuscan kale"
-                    }
-                }
-            ]
-        }
-        ,
-    }
-    }
-  
-    return new_page
-
-
-def create_page():
-    # Define the necessary details
-    token = os.environ.get("Notion_secret")
+    # Replace these variables with your actual data
+    api_token = os.environ.get("Notion_secret")
     database_id = os.environ.get("NotionDB")
+    #new_page_title = "New Page Title"
+    #text_blocks = ["Text block 1", "Text block 2", "Text block 3"]
+    
+    words_per_chunk = 100
+    words = text_body.split()
+    text_blocks = []
+    for i in range(0, len(words), words_per_chunk):
+        chunk = " ".join(words[i:i+words_per_chunk])
+        text_blocks.append(chunk)
 
-    # Define the page properties
-    new_page_properties = {
-        "Parent": {"database_id": database_id},
+    base_url = "https://api.notion.com/v1/pages"
+    headers = {
+        "Authorization": f"Bearer {api_token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28"  # Replace with the latest Notion API version
+    }
+
+    # Create the payload for the new page
+    payload = {
+        "parent": {"database_id": database_id},
         "properties": {
             "Note": {
                 "title": [
                     {
-                        "text": {
-                            "content": "New Page Title"
-                        }
+                        "text": {"content": new_page_title}
                     }
                 ]
             }
-        }
+        },
+        "children": []
     }
 
-    # Prepare the request
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "Notion-Version": "2021-05-13"
-    }
+    # Add the text blocks to the page
+    for text in text_blocks:
+        payload["children"].append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {"content": text}
+                    }
+                ]
+            }
+        })
 
-    data = {
-        "parent": new_page_properties["Parent"],
-        "properties": new_page_properties["properties"]
-    }
-
-    # Send the request to create a new page
-    response = requests.post("https://api.notion.com/v1/pages", headers=headers, data=json.dumps(data))
+    logging.debug("Post page update")
+    # Send the POST request to create the new page
+    response = requests.post(base_url, headers=headers, json=payload)
 
     if response.status_code == 200:
-        print("New page added successfully!")
+        logging.debug("New page added successfully!")
+
     else:
-        print(f"Failed to add new page. Status code: {response.status_code}")
-        print(response.text)
+        #print(f"Failed to add page. Status code: {response.status_code}")
+        logging.debug(f"Failed to add page. Status code: {response.status_code}")
+        logging.debug(str(response.text))
+
+        logging.debug(response.json())
+
+    

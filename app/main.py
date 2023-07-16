@@ -5,6 +5,7 @@ import logging
 import sys
 import env.setupenv as envSetup 
 import notion
+from pathlib import Path
 
 
 global logger
@@ -32,7 +33,6 @@ def setup():
 def main():
     try:
         setup()
-        notion.create_page()
         for f in (fh.fileInDirectory()):
             #f = audioFile.split(",")
             try: 
@@ -44,14 +44,16 @@ def main():
                 transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
 
                 text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
+
                 tf = open(text_file, "w")
                 logger.info("Saving text " + text_file)
                 tf.write(transcribed_text)
                 tf.close()
-
-                logger.info("Successful transcribe " + f)
+                
+                notion.add_page_to_database(Path(text_file).stem, transcribed_text)
+                
                 os.rename(os.environ.get("audioPath") + f, os.environ.get("processedAudioPath") + f)
-
+                logger.info("Successful transcribe " + f)
             except Exception as e:
                 logger.error("transcribe error " + str(e))
                 pass
