@@ -3,11 +3,6 @@ import os
 import logging
 import json
 
-# def create_page():
-#     # Define the necessary details
-#     token = os.environ.get("Notion_secret")
-#     database_id = os.environ.get("NotionDB")
-
 def add_page_to_database(new_page_title, text_body): 
     #api_token, database_id, title, text_blocks):
 
@@ -30,7 +25,6 @@ def add_page_to_database(new_page_title, text_body):
         "Content-Type": "application/json",
         "Notion-Version": "2022-06-28"  # Replace with the latest Notion API version
     }
-
     # Create the payload for the new page
     payload = {
         "parent": {"database_id": database_id},

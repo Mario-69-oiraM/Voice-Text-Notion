@@ -7,7 +7,6 @@ import env.setupenv as envSetup
 import notion
 from pathlib import Path
 
-
 global logger
 logger = logging.getLogger(__name__)
 logger=logging.getLogger()
