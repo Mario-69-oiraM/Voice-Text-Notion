@@ -37,17 +37,18 @@ def main():
         for f in (fh.fileInDirectory()):
             #f = audioFile.split(",")
             try: 
+                transcribed_text = ""
                 logger.info("Transcribing " + f)
                 splitFiles = ""
                 ## local 
                 ##transcribed_text = t.transcribe_audio_file_local(os.environ.get("audioPath") + f)
     
-                transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
+                #transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
 
-#                 splitFiles = audiofiles.split_audio(os.environ.get("audioPath") + f, os.environ.get("tempPath"))
-#                 for splitFile in splitFiles:
-#                     ## Chat GPT 
-# x                    transcribed_text = transcribed_text + " " + t.transcribe_audio_file_openAI(splitFile)
+                splitFiles = audiofiles.split_audio(os.environ.get("audioPath") + f, os.environ.get("tempPath"))
+                for splitFile in splitFiles:
+                    ## Chat GPT 
+                    transcribed_text = transcribed_text + " " + t.transcribe_audio_file_openAI(splitFile)
 
                 text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
 

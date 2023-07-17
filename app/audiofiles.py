@@ -15,7 +15,7 @@ def split_audio(input_file, output_dir):
         length_ms = len(audio)
 
         # Split audio into chunks of 10 minutes
-        chunk_size_ms = 5 * 60 * 1000
+        chunk_size_ms = 10 * 60 * 1000
         chunks = range(0, length_ms, chunk_size_ms)
 
         # Save each chunk as a separate file
@@ -24,7 +24,7 @@ def split_audio(input_file, output_dir):
             chunk = audio[chunk_start:chunk_end]
             chunk_name = os.path.join(output_dir, f"chunk{i}.wav")
             tempFiles.append(chunk_name)
-            chunk.export(chunk_name, format="wav")
+            chunk.export(chunk_name, format="mp3")
             logger.debug("split " + chunk_name)
         
         logger.debug("*** Files split complete " )
