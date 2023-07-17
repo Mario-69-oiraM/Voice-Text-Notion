@@ -6,6 +6,8 @@ import sys
 import env.setupenv as envSetup 
 import notion
 from pathlib import Path
+import audiofiles
+import audiofiles
 
 global logger
 logger = logging.getLogger(__name__)
@@ -23,9 +25,9 @@ logger.info('************* Started main *************')
  
 def setup():
     
-    global audioPath
-    global textPath
-    global dataPath
+    #global audioPath
+    #global textPath
+    #global dataPath
 
     envSetup.env_setup()
 
@@ -36,11 +38,16 @@ def main():
             #f = audioFile.split(",")
             try: 
                 logger.info("Transcribing " + f)
+                splitFiles = ""
                 ## local 
                 ##transcribed_text = t.transcribe_audio_file_local(os.environ.get("audioPath") + f)
-                
-                ## Chat GPT 
+    
                 transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
+
+#                 splitFiles = audiofiles.split_audio(os.environ.get("audioPath") + f, os.environ.get("tempPath"))
+#                 for splitFile in splitFiles:
+#                     ## Chat GPT 
+# x                    transcribed_text = transcribed_text + " " + t.transcribe_audio_file_openAI(splitFile)
 
                 text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
 
@@ -55,12 +62,14 @@ def main():
                 logger.info("Successful transcribe " + f)
             except Exception as e:
                 logger.error("transcribe error " + str(e))
+                os.rename(os.environ.get("audioPath") + f, os.environ.get("failedPath") + f)
                 pass
             
         logging.info("************* End *************")
 
     except Exception as e:
             logger.info("Main error " + str(e))
+
     
 if __name__ == "__main__":
     main()
