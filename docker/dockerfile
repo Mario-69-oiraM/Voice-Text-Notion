@@ -4,19 +4,20 @@ FROM python:3.8
 WORKDIR /app
 
 # install dependencies
-COPY ../app/requirements.txt /app
+
+COPY requirements.txt /app
 RUN /usr/local/bin/python -m pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r requirements.txt --target=/app/appRequirements
 ENV PYTHONPATH=/app/appRequirements
 
-# Give execution rights on the cron scripts
-RUN chmod +x /app/main.py
-
 RUN apt-get update && apt-get -y install cron
-RUN apt-get update && apt-get -y install nano
+RUN apt-get update && apt-get -y install ffmpeg
 
 # copy the scripts to the folder
 COPY ../app/* /app
+
+# Give execution rights on the cron scripts
+RUN chmod +x /app/main.py
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -38,6 +39,7 @@ ENV processedAudioPath ${processedAudioPath}
 ENV openai_api_key ${openai_api_key}
 ENV NotionDB ${NotionDB}
 ENV Notion_secret ${Notion_secret}
+
 
 
 # Adding crontab to the appropiate location
