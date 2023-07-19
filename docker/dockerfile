@@ -1,5 +1,6 @@
 FROM python:3.8
 
+RUN mkdir app
 # set the working directory
 WORKDIR /app
 
@@ -14,10 +15,8 @@ RUN apt-get update && apt-get -y install cron
 RUN apt-get update && apt-get -y install ffmpeg
 
 # copy the scripts to the folder
-COPY ../app/* /app
-
 # Give execution rights on the cron scripts
-RUN chmod +x /app/main.py
+#RUN chmod +x /app/main.py
 
 ENV TZ=America/Los_Angeles
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
@@ -40,7 +39,7 @@ ENV openai_api_key ${openai_api_key}
 ENV NotionDB ${NotionDB}
 ENV Notion_secret ${Notion_secret}
 
-
+VOLUME /shared
 
 # Adding crontab to the appropiate location
 ADD crontab /etc/cron.d/my-cron-file

@@ -1,7 +1,14 @@
 # Auto build from buildContainer script
-NOTION_TOKEN=
-NOTION_TOKEN_heartbeat=
-PYTHONPATH=/app/appRequirements
+audioPath=
+textPath=
+dataPath=
+wavPath=
+processedAudioPath=
+tempPath=
+failedPath=
+openai_api_key=
+NotionDB=
+Notion_secret=
  
-# Run automation every min
-*/10 * * * * bash /app/runSchedule.sh >> /var/log/myjob.log 2>&1
+# Run automation x every min
+*/10 * * * * python /app/main.py
