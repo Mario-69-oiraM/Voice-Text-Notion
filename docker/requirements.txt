@@ -1,5 +1,3 @@
+openai
 requests
-#openai
-#logging
-#json
-#AudioSegment
+AudioSegment

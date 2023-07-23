@@ -1,0 +1,7 @@
+We are creating a python application that continuously monitors a folder "/shared" for any new audio files (mp3,wav), and ignore other file types.
+Monitor only this folder ignore sub folders to be monitored, Using a polling mechanisum. 
+When a new file is detected sent the audio file to chatgpt to trascribe to text. 
+When successfull save the text file in a folder "/text" with a same name as the source file.
+When a error occours log the error and continue and sens a SNS message to "deon", 
+try to reporcess the file twice before giving up on the file. do not overwrite the text file if duclication occours 
+add incremental version to the file name starting with _

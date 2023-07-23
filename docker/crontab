@@ -1,14 +1,5 @@
 # Auto build from buildContainer script
-audioPath=
-textPath=
-dataPath=
-wavPath=
-processedAudioPath=
-tempPath=
-failedPath=
-openai_api_key=
-NotionDB=
-Notion_secret=
+PYTHONPATH=/app/appRequirements 
  
 # Run automation x every min
-*/10 * * * * python /app/main.py
+*/10 * * * * cd /app && /app/runMain.sh
