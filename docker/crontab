@@ -2,4 +2,4 @@
 PYTHONPATH=/app/appRequirements 
  
 # Run automation x every min
-*/10 * * * * cd /app && /app/runMain.sh
+*/3 * * * * cd /app && /app/runMain.sh

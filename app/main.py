@@ -1,19 +1,20 @@
 import os 
 import filehelper as fh
 import transcribe as t
-import logging
 import sys
 import env.setupenv as envSetup 
 import notion
 from pathlib import Path
 import audiofiles
 
+import logging
+envSetup.env_setup()
+
 global logger
 logger = logging.getLogger(__name__)
 logger=logging.getLogger()
 logger.setLevel(logging.DEBUG)
-
-file_handler = logging.FileHandler('logfile.log')
+file_handler = logging.FileHandler(os.environ.get("logfilePath") + 'logfile.log')
 formatter    = logging.Formatter('%(asctime)s : %(levelname)s : %(module)s : %(message)s')
 
 logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
@@ -40,14 +41,13 @@ def main():
                 logger.info("Transcribing " + f)
                 splitFiles = ""
                 ## local 
-                ##transcribed_text = t.transcribe_audio_file_local(os.environ.get("audioPath") + f)
-    
-                #transcribed_text = t.transcribe_audio_file_openAI(os.environ.get("audioPath") + f)
-
+                
                 splitFiles = audiofiles.split_audio(os.environ.get("audioPath") + f, os.environ.get("tempPath"))
                 for splitFile in splitFiles:
                     ## Chat GPT 
                     transcribed_text = transcribed_text + " " + t.transcribe_audio_file_openAI(splitFile)
+
+                    #transcribed_text = "[" +  os.path.basename(splitFile) + "]" + transcribed_text + " " + t.transcribe_audio_file_openAI(splitFile)
 
                 text_file = os.environ.get("textPath") + os.path.splitext(f)[0] + '.txt'
 
@@ -56,7 +56,7 @@ def main():
                 tf.write(transcribed_text)
                 tf.close()
                 
-                notion.add_page_to_database(Path(text_file).stem, transcribed_text)
+                notion.add_page_to_database(Path(text_file).stem, transcribed_text, splitFiles)
                 
                 os.rename(os.environ.get("audioPath") + f, os.environ.get("processedAudioPath") + f)
                 logger.info("Successful transcribe " + f)
@@ -68,7 +68,7 @@ def main():
         logging.info("************* End *************")
 
     except Exception as e:
-            logger.info("Main error " + str(e))
+            logger.error("Main error " + str(e))
 
     
 if __name__ == "__main__":

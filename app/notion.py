@@ -3,7 +3,7 @@ import os
 import logging
 import json
 
-def add_page_to_database(new_page_title, text_body): 
+def add_page_to_database(new_page_title, text_body, SplitAudioFiles): 
     #api_token, database_id, title, text_blocks):
 
     # Replace these variables with your actual data
@@ -29,7 +29,7 @@ def add_page_to_database(new_page_title, text_body):
     payload = {
         "parent": {"database_id": database_id},
         "properties": {
-            "Note": {
+            "Name": {
                 "title": [
                     {
                         "text": {"content": new_page_title}
@@ -55,6 +55,53 @@ def add_page_to_database(new_page_title, text_body):
             }
         })
 
+
+    payload["children"].append({
+        "object": "block",
+        "type": "paragraph",
+        "paragraph": {
+            "rich_text": [
+                {
+                    "type": "text",
+                    "text": {"content": " "}
+                }
+            ]
+        }
+    })
+
+
+
+    # add audio files 
+    for file in SplitAudioFiles:
+        payload["children"].append({
+            "object": "block",
+            "type": "paragraph",
+            "paragraph": {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {"content": file}
+                    }
+                ]
+            }
+        })
+
+# 
+# {
+#   //...other keys excluded
+#   "type": "file",
+#   //...other keys excluded
+#   "file": {
+# 		"caption": [],
+#     "type": "external",
+#     "external": {
+#  	  	"url": "https://companywebsite.com/files/doc.txt"
+#     }
+#   }
+# }`
+
+
+    #logging.debug(payload)
     logging.debug("Post page update")
     # Send the POST request to create the new page
     response = requests.post(base_url, headers=headers, json=payload)

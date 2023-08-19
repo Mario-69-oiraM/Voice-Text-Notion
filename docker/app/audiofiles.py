@@ -7,7 +7,7 @@ logger = logging #.getLogger(__name__)
 def split_audio(input_file, output_dir):
     # Load audio file
     tempFiles = []
-    logger.debug("*** Files split started " )
+    logger.debug("*** Files split started " + input_file)
     try:
         audio = AudioSegment.from_file(input_file)
 
@@ -22,7 +22,7 @@ def split_audio(input_file, output_dir):
         for i, chunk_start in enumerate(chunks):
             chunk_end = chunk_start + chunk_size_ms
             chunk = audio[chunk_start:chunk_end]
-            chunk_name = os.path.join(output_dir, f"chunk{i}.wav")
+            chunk_name = os.path.join(output_dir, os.path.basename(input_file) + f"-chunk{i}.wav")
             tempFiles.append(chunk_name)
             chunk.export(chunk_name, format="mp3")
             logger.debug("split " + chunk_name)
